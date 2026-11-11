@@ -41,7 +41,11 @@ if (p.get("img")) { const i = document.createElement("img"); i.src = p.get("img"
 const n = document.createElement("div"); n.className = "nome"; n.textContent = p.get("nome") || ""; stage.appendChild(n);
 if (p.get("quem")) { const q = document.createElement("div"); q.className = "quem"; q.textContent = p.get("quem"); stage.appendChild(q); }
 
-if (p.get("som")) { const a = new Audio(p.get("som")); a.volume = 0.8; a.play().catch(() => {}); }
+if (p.get("som")) {
+  const a = new Audio(p.get("som")); a.volume = 0.8;
+  a.addEventListener("error", () => console.warn("[ATAQUES] Erro ao carregar o som (link inválido ou não é um arquivo de áudio direto):", p.get("som"), a.error));
+  a.play().catch((e) => console.warn("[ATAQUES] Navegador bloqueou o som:", e.name, e.message));
+}
 
 OBR.onReady(() => {
   const dur = Number(p.get("dur")) || 4000;
