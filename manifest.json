@@ -1,0 +1,14 @@
+{
+  "name": "Ataques Gamificados",
+  "version": "1.0.0",
+  "manifest_version": 1,
+  "description": "Aba privada de ataques com imagem/gif e som que aparecem para toda a mesa.",
+  "background_url": "/background.html",
+  "action": {
+    "title": "Meus Ataques",
+    "icon": "/icon.svg",
+    "popover": "/index.html",
+    "width": 380,
+    "height": 520
+  }
+}

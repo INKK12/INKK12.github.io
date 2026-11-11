@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin:0; padding:12px; font-family:system-ui,sans-serif; background:#1e2231; color:#eee; }
+  h3 { margin:0 0 8px; }
+  input { width:100%; box-sizing:border-box; margin:3px 0; padding:7px; border-radius:6px; border:1px solid #444; background:#2a2f42; color:#fff; }
+  button { padding:7px 10px; border:0; border-radius:6px; cursor:pointer; background:#6c5ce7; color:#fff; }
+  button.sec { background:#3a4057; } button.del { background:#a33; }
+  .card { display:flex; gap:8px; align-items:center; background:#2a2f42; padding:8px; border-radius:8px; margin:6px 0; }
+  .card img { width:48px; height:48px; object-fit:cover; border-radius:6px; }
+  .card .info { flex:1; font-weight:bold; }
+  .acoes { display:flex; gap:4px; }
+  details { margin-bottom:10px; }
+</style>
+</head>
+<body>
+<h3>⚔️ Meus Ataques</h3>
+<details>
+  <summary>+ Novo ataque</summary>
+  <input id="nome" placeholder="Nome do ataque">
+  <input id="img" placeholder="URL da imagem/gif">
+  <input id="som" placeholder="URL do som (mp3/ogg)">
+  <button id="add">Salvar</button>
+</details>
+<div id="lista"></div>
+
+<script type="module">
+import OBR from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
+const KEY = "dag-ataques";
+const $ = (id) => document.getElementById(id);
+let quem = "";
+
+const ler = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
+const gravar = (l) => localStorage.setItem(KEY, JSON.stringify(l));
+
+function render() {
+  const l = ler(); $("lista").innerHTML = "";
+  l.forEach((a, idx) => {
+    const d = document.createElement("div"); d.className = "card";
+    d.innerHTML = `${a.img ? `<img src="${a.img}">` : ""}<div class="info"></div>
+      <div class="acoes"><button data-a="usar">Usar</button><button class="sec" data-a="teste">Ver</button><button class="del" data-a="del">✕</button></div>`;
+    d.querySelector(".info").textContent = a.nome;
+    d.querySelector('[data-a="usar"]').onclick = () => OBR.broadcast.sendMessage("dag.ataque", { ...a, quem }, { destination: "ALL" });
+    d.querySelector('[data-a="teste"]').onclick = () => OBR.broadcast.sendMessage("dag.teste", { ...a, quem }, { destination: "LOCAL" });
+    d.querySelector('[data-a="del"]').onclick = () => { const x = ler(); x.splice(idx, 1); gravar(x); render(); };
+    $("lista").appendChild(d);
+  });
+}
+
+$("add").onclick = () => {
+  const nome = $("nome").value.trim(); if (!nome) return;
+  const l = ler(); l.push({ nome, img: $("img").value.trim(), som: $("som").value.trim() }); gravar(l);
+  ["nome", "img", "som"].forEach((i) => ($(i).value = "")); render();
+};
+
+OBR.onReady(async () => { quem = await OBR.player.getName(); render(); });
+</script>
+</body>
+</html>

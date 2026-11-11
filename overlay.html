@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin:0; height:100%; background:transparent; overflow:hidden; font-family: Georgia, serif; }
+  .shade {
+    position:fixed; inset:0;
+    background: radial-gradient(circle at center,
+      rgba(0,0,0,.95) 0%, rgba(0,0,0,.88) 22%, rgba(0,0,0,.45) 50%, rgba(0,0,0,0) 80%);
+    animation: fadeIn .35s ease-out forwards;
+  }
+  .stage { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; }
+  .stage img {
+    max-width:55vw; max-height:55vh; border-radius:12px;
+    box-shadow: 0 0 60px rgba(255,255,255,.25);
+    animation: pop .55s cubic-bezier(.2,1.6,.4,1) forwards;
+  }
+  .nome {
+    color:#fff; font-size:clamp(28px,5vw,64px); font-weight:bold; letter-spacing:.08em; text-transform:uppercase;
+    text-shadow:0 0 20px #000, 0 0 40px rgba(255,80,40,.7);
+    animation: pop .55s .1s cubic-bezier(.2,1.6,.4,1) both;
+  }
+  .quem { color:#ccc; font-size:18px; animation: fadeIn .6s .3s both; }
+  body.saindo .shade, body.saindo .stage { animation: fadeOut .5s forwards; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes fadeOut { from{opacity:1} to{opacity:0} }
+  @keyframes pop { 0%{transform:scale(.2);opacity:0} 100%{transform:scale(1);opacity:1} }
+</style>
+</head>
+<body>
+<div class="shade"></div>
+<div class="stage" id="stage"></div>
+<script type="module">
+import OBR from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
+
+const p = new URLSearchParams(location.search);
+const stage = document.getElementById("stage");
+
+if (p.get("img")) { const i = document.createElement("img"); i.src = p.get("img"); stage.appendChild(i); }
+const n = document.createElement("div"); n.className = "nome"; n.textContent = p.get("nome") || ""; stage.appendChild(n);
+if (p.get("quem")) { const q = document.createElement("div"); q.className = "quem"; q.textContent = p.get("quem"); stage.appendChild(q); }
+
+if (p.get("som")) { const a = new Audio(p.get("som")); a.volume = 0.8; a.play().catch(() => {}); }
+
+OBR.onReady(() => {
+  const dur = Number(p.get("dur")) || 4000;
+  setTimeout(() => document.body.classList.add("saindo"), dur);
+  setTimeout(() => OBR.modal.close("dag-fx"), dur + 500);
+});
+</script>
+</body>
+</html>

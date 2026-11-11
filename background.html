@@ -1,0 +1,27 @@
+<!doctype html>
+<html><body>
+<script type="module">
+import OBR from "https://esm.sh/@owlbear-rodeo/sdk@3.1.0";
+
+async function mostrar(dados) {
+  const url = new URL("overlay.html", location.href);
+  url.search = new URLSearchParams(dados).toString();
+  try { await OBR.modal.close("dag-fx"); } catch (e) {}
+  await OBR.modal.open({
+    id: "dag-fx",
+    url: url.href,
+    fullScreen: true,
+    hidePaper: true,
+    hideBackdrop: true,
+    disablePointerEvents: true
+  });
+}
+
+OBR.onReady(() => {
+  // Todos os jogadores (inclusive quem enviou) recebem e mostram o efeito
+  OBR.broadcast.onMessage("dag.ataque", (ev) => mostrar(ev.data));
+  // O popover pede para mostrar só para si mesmo (teste)
+  OBR.broadcast.onMessage("dag.teste", (ev) => mostrar(ev.data));
+});
+</script>
+</body></html>
